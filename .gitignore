@@ -1,2 +1,5 @@
 .idea/
 flashcards/__pycache__/
+flashcards/migrations/__pycache__/
+EasyWord/.env
+EasyWord/__pycache__/
