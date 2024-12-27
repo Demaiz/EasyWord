@@ -1,0 +1,46 @@
+<!DOCTYPE html> 
+<html>
+    {% load static %}
+<head>
+    {% block head %}
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{% static 'flashcards/bootstrap-5.3.3/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'flashcards/main.css' %}">
+    {% endblock %}
+</head>
+
+<body>
+    {% block navbar %}
+    <nav class="navbar navbar-expand-lg bg-info-subtle">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="#">EasyWord</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <ul class="nav nav-underline">
+                <li class="nav-item">
+                  <a class="nav-link active" aria-current="page" href="#">Словник</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="#">Вчити</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="#">Повторити</a>
+                </li>
+              </ul>
+            </ul>
+            <button class="btn btn-outline-primary" type="button">Увійти</button>
+          </div>
+        </div>
+      </nav>
+    {% endblock %}
+
+    {% block content %}{% endblock %}
+
+    {% block js %}
+    <script src="{% static 'flashcards/bootstrap-5.3.3/js/bootstrap.bundle.min.js' %}"></script>
+    {% endblock %}
+</body>
+</html>
