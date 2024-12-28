@@ -5,4 +5,5 @@ app_name = "flashcards"
 
 urlpatterns = [
     path('', views.index, name="index"),
+    path('dictionary/', views.dictionary, name="dictionary"),
 ]
