@@ -1,0 +1,38 @@
+<!DOCTYPE html> 
+<html>
+    {% extends 'flashcards/base.html' %}
+    {% load static %}
+<head>
+</head>
+
+<body>
+    {% block content %}
+    <div class = "container-fluid">
+        <div class="row">
+            <div class="col-4"></div>  
+                <div class = "col-4">
+                    <h1 class="text-center mt-3">Реєстрація</h1>
+                    <form method="post">
+                        {% csrf_token %}
+                        {% for element in form %}
+                            <div class="mb-3">                         
+                                <label for="{{element.id_for_label}}" class="form-label">{{ element.label_tag }}</label>
+                                <div class="text-input">{{element}}</div>
+                                <ul class="errorlist">
+                                    {% for error in element.errors %}
+                                        <li class = "text-danger">{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endfor %}
+                        <button type="submit" class="btn btn-primary mx-auto d-block">Зареєструватися</button>                      
+                    </form>
+                </div>
+
+            <div class="col-4"></div>  
+        </div>
+    </div>
+    
+    {% endblock %}
+</body>
+</html>

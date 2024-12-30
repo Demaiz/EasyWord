@@ -1,6 +1,8 @@
 from django.core.paginator import Paginator
-from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.urls import reverse_lazy
+from django.views.generic import CreateView
+from .forms import RegisterUserForm
 from .models import *
 
 
@@ -20,3 +22,13 @@ def dictionary(request):
 
     context = {"english_words": english_words, "page_range": page_range}
     return render(request, "flashcards/dictionary.html", context)
+
+
+class RegisterUser(CreateView):
+    form_class = RegisterUserForm
+    template_name = "flashcards/register.html"
+    success_url = reverse_lazy("flashcards:index")
+
+    def form_valid(self, form):
+        form.save()
+        return redirect("flashcards:index")
