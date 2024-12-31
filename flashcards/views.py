@@ -1,8 +1,10 @@
+from django.contrib.auth import logout, login
+from django.contrib.auth.views import LoginView
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
-from .forms import RegisterUserForm
+from .forms import *
 from .models import *
 
 
@@ -30,5 +32,19 @@ class RegisterUser(CreateView):
     success_url = reverse_lazy("flashcards:index")
 
     def form_valid(self, form):
-        form.save()
+        user = form.save()
+        login(self.request, user) # auto login
         return redirect("flashcards:index")
+
+
+class LoginUser(LoginView):
+    form_class = AuthenticationUserForm
+    template_name = "flashcards/login.html"
+
+    def get_success_url(self):
+        return reverse_lazy("flashcards:index")
+
+
+def logout_user(request):
+    logout(request)
+    return redirect("flashcards:login")

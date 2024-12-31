@@ -10,14 +10,14 @@
     <div class = "container-fluid">
         <div class="row">
             <div class="col-4"></div>  
-                <div class = "col-4">
-                    <h1 class="text-center mt-3">Реєстрація</h1>
+                <div class = "col-4 p-4 border rounded shadow-sm mt-5">
+                    <h1 class="text-center">Реєстрація</h1>
                     <form method="post">
                         {% csrf_token %}
                         {% for element in form %}
                             <div class="mb-3">                         
                                 <label for="{{element.id_for_label}}" class="form-label">{{ element.label_tag }}</label>
-                                <div class="text-input">{{element}}</div>
+                                {{element}}
                                 <ul class="errorlist">
                                     {% for error in element.errors %}
                                         <li class = "text-danger">{{ error }}</li>
