@@ -4,6 +4,7 @@ from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
+from django.http import JsonResponse
 from .forms import *
 from .models import *
 
@@ -48,3 +49,15 @@ class LoginUser(LoginView):
 def logout_user(request):
     logout(request)
     return redirect("flashcards:login")
+
+def learn(request):
+    is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
+    if is_ajax:
+        if request.method == "GET":
+            # get all words from db and send it to js file
+            english_words = list(EnglishWords.objects.all().order_by("?").values())
+            return JsonResponse({"english_words": english_words})
+        return JsonResponse({"status": "Invalid request"}, status=400)
+    else:
+        # if request is not AJAX render page
+        return render(request, "flashcards/learn.html")

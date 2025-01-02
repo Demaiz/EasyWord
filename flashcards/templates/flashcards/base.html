@@ -25,7 +25,7 @@
                     <a class="nav-link{% if request.path == '/dictionary/' %} active{% endif %}" aria-current="page" href="{% url 'flashcards:dictionary' %}">Словник</a>                          
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="#">Вчити</a>
+                  <a class="nav-link" href="{% url 'flashcards:learn' %}">Вчити</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" href="#">Повторити</a>
