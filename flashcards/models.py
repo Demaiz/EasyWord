@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class EnglishWords(models.Model):
@@ -11,3 +12,17 @@ class EnglishWords(models.Model):
 
     def __str__(self):
         return f"{self.word}: {self.translation}"
+
+
+class UserWordSelection(models.Model):
+    STATUS_CHOICES = [
+        ("selected", "Selected"),    # user can start to learn this word
+        ("learning", "Learning"),    # user currently learning this word
+        ("known", "Already known"),  # user already know this word
+        ("repeating", "Repeating"),  # user learned this word and now repeating it
+        ("learned", "Fully learned") # user learned this word and repeated it
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    english_words = models.ForeignKey(EnglishWords, on_delete=models.CASCADE)
+    status = models.CharField(max_length=15, choices=STATUS_CHOICES, default="selected")
