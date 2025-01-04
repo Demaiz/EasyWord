@@ -7,6 +7,7 @@ from django.views.generic import CreateView
 from django.http import JsonResponse
 from .forms import *
 from .models import *
+import json
 
 
 def index(request):
@@ -33,7 +34,15 @@ class RegisterUser(CreateView):
     success_url = reverse_lazy("flashcards:index")
 
     def form_valid(self, form):
-        user = form.save()
+        user = form.save() # add new user to database
+
+        # mark all words as selected for this user
+        english_words = EnglishWords.objects.all()
+        data = []
+        for word in english_words:
+            data.append(UserWordSelection(user=user, english_words=word))
+        UserWordSelection.objects.bulk_create(data)
+
         login(self.request, user) # auto login
         return redirect("flashcards:index")
 
@@ -53,11 +62,18 @@ def logout_user(request):
 def learn(request):
     is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
     if is_ajax:
+        # GET request is used for sending data to js file
         if request.method == "GET":
-            # get all words from db and send it to js file
-            english_words = list(EnglishWords.objects.all().order_by("?").values())
+            # get words with status "selected" from db and send it to js file
+            english_words = list(EnglishWords.objects.filter(userwordselection__user=request.user, userwordselection__status="selected").order_by("?").values())
             return JsonResponse({"english_words": english_words})
-        return JsonResponse({"status": "Invalid request"}, status=400)
+        # POST request is used for getting data from js file
+        if request.method == "POST":
+            data = json.loads(request.POST.get("main"))
+            # update word status
+            UserWordSelection.objects.filter(user=request.user, english_words=data["word_id"]).update(status=data["status"])
+            return JsonResponse({"status": "success"})
+        return JsonResponse({"status": "invalid request"}, status=400)
     else:
         # if request is not AJAX render page
         return render(request, "flashcards/learn.html")

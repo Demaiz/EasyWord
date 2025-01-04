@@ -9,12 +9,11 @@ const learn_word = document.getElementById("learn-word");
 
 eye_icon.addEventListener("click", show_translation);
 sound_speaker_icon.addEventListener("click", play_audio);
-skip_word.addEventListener("click", show_next_word)
-learn_word.addEventListener("click", show_next_word)
+skip_word.addEventListener("click", user_already_know_word);
+learn_word.addEventListener("click", user_want_to_learn_word);
 
 let data;
 get_data();
-
 
 // get data from views.py via AJAX
 function get_data(){
@@ -33,6 +32,16 @@ function get_data(){
     });
 }
 
+// send data to views.py via AJAX
+function send_data(word_status_info){
+  $.ajax({
+    url: "/learn/",
+    method : "post",
+    dataType : "json",
+    data : {main: JSON.stringify(word_status_info), "csrfmiddlewaretoken": document.getElementsByName("csrfmiddlewaretoken")[0].value},
+    });
+} 
+
 // add information to card
 function add_info(){ 
   console.log(data[0]);
@@ -40,6 +49,16 @@ function add_info(){
   phonetics.innerHTML = data[0]["phonetics"];
   pronunciation.src = data[0]["audio_link"];
   translation.innerHTML = data[0]["translation"];
+}
+
+function user_already_know_word(){
+  send_data({"status": "known", "word_id": data[0]["id"]});
+  show_next_word();
+}
+
+function user_want_to_learn_word(){
+  send_data({"status": "learning", "word_id": data[0]["id"]});
+  show_next_word();
 }
 
 function show_next_word(){
