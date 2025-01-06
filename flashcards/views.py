@@ -1,4 +1,5 @@
 from django.contrib.auth import logout, login
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
@@ -59,14 +60,26 @@ def logout_user(request):
     logout(request)
     return redirect("flashcards:login")
 
+@login_required # if user is not authenticated - page 404
 def learn(request):
     is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
     if is_ajax:
         # GET request is used for sending data to js file
         if request.method == "GET":
-            # get words with status "selected" from db and send it to js file
-            english_words = list(EnglishWords.objects.filter(userwordselection__user=request.user, userwordselection__status="selected").order_by("?").values())
-            return JsonResponse({"english_words": english_words})
+            # get words with status "learning" from db
+            learning_words = list(EnglishWords.objects.filter(userwordselection__user=request.user, userwordselection__status="learning").order_by("?").values())
+            # get words with status "selected" from db
+            number_of_selected_words = 10 - len(learning_words) # total number of words is 10
+            # variable sometimes can be negative because of race condition between AJAX requests
+            if number_of_selected_words < 0:
+                number_of_selected_words = 0
+            selected_words = list(EnglishWords.objects.filter(userwordselection__user=request.user, userwordselection__status="selected").order_by("?").values()[:number_of_selected_words])
+
+            context = {
+                "selected_words": selected_words,
+                "learning_words": learning_words
+            }
+            return JsonResponse(context)  # send words to js file
         # POST request is used for getting data from js file
         if request.method == "POST":
             data = json.loads(request.POST.get("main"))
