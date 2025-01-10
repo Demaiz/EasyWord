@@ -1,0 +1,40 @@
+<!DOCTYPE html> 
+<html>
+    {% extends 'flashcards/base.html' %}
+    {% load static %}
+<head>
+</head>
+
+<body>
+    {% block content %}
+    {% csrf_token %}
+    <div class = "container-fluid">
+        <div class="row">
+        <div class="col-4"></div>
+            <div class = "col-4 border rounded shadow-sm mt-5 card">
+                <h1 class = "word" id = "word">&nbsp;</h1>
+                <hr>
+                <div class="show-info">
+                    <img src="{% static 'flashcards/images/eye_icon.png' %}" alt = "eye icon" class="eye-icon border border rounded p-3 shadow-sm" id = "eye-icon">
+                    <h1 id = "translation"></h1>
+                    <p class="text-secondary" id = "phonetics">&nbsp;</p>
+                    <img src = "{% static 'flashcards/images/sound_speaker_icon.png' %}" alt = "sound speaker icon" class = "sound-speaker-icon" id = "sound-speaker-icon">              
+                    <audio src="" id = "pronunciation"></audio>
+                </div>
+                    <div class = "buttons">
+                        <input type="button" value="Пам'ятаю" id = "remember-word" class = "btn btn-light">
+                        <input type="button" value="Не пам'ятаю" id = "dont-remember-word" class = "btn btn-light">                       
+                    </div>             
+            </div>
+        <div class="col-4"></div>  
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block js %}
+    <script src="{% static 'flashcards/bootstrap-5.3.3/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="{% static 'flashcards/repeat.js' %}"></script> 
+    {% endblock %}
+</body>
+</html>

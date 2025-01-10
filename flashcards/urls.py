@@ -10,4 +10,5 @@ urlpatterns = [
     path('login/', views.LoginUser.as_view(), name="login"),
     path('logout/', views.logout_user, name="logout_user"),
     path('learn/', views.learn, name="learn"),
+    path('repeat/', views.repeat, name="repeat"),
 ]

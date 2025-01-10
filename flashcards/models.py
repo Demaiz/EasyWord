@@ -31,6 +31,6 @@ class UserWordSelection(models.Model):
 class RepeatWord(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     english_words = models.ForeignKey(EnglishWords, on_delete=models.CASCADE)
-    date = models.DateTimeField(auto_now=True)
+    date = models.DateTimeField()
     # a word needs to be repeated multiple times to be considered fully learned
     times_repeated = models.PositiveSmallIntegerField(default=0)

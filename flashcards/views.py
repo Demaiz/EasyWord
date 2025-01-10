@@ -1,3 +1,5 @@
+from calendar import month
+
 from django.contrib.auth import logout, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
@@ -6,9 +8,12 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from django.http import JsonResponse
+from datetime import timedelta
 from .forms import *
 from .models import *
 import json
+from django.utils import timezone
+from django.db.models import F
 
 
 def index(request):
@@ -85,8 +90,57 @@ def learn(request):
             data = json.loads(request.POST.get("main"))
             # update word status
             UserWordSelection.objects.filter(user=request.user, english_words=data["word_id"]).update(status=data["status"])
+
+            if data["status"] == "repeating":
+                word = EnglishWords.objects.get(id=data["word_id"])
+                RepeatWord.objects.create(user=request.user, english_words=word, date=timezone.now())
             return JsonResponse({"status": "success"})
         return JsonResponse({"status": "invalid request"}, status=400)
     else:
-        # if request is not AJAX render page
+        # if request is not AJAX, render page
         return render(request, "flashcards/learn.html")
+
+@login_required # if user is not authenticated - page 404
+def repeat(request):
+    is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
+    if is_ajax:
+        # a word will be displayed to the user at increasing intervals
+        # each time the user repeats the word, the interval increases
+        # word counts as fully learned if user repeated it 6 times
+        intervals = [
+            timedelta(minutes=20),
+            timedelta(hours=2),
+            timedelta(days=1),
+            timedelta(days=3),
+            timedelta(weeks=1),
+            timedelta(weeks=2),
+            timedelta(weeks=4)
+        ]
+        # GET request is used for sending data to js file
+        if request.method == "GET":
+            word_ids = []
+            all_repeat_words = RepeatWord.objects.filter(user=request.user)
+            # find words to repeat
+            for word in all_repeat_words:
+                if word.date + intervals[word.times_repeated] < timezone.now():
+                    word_ids.append(word.english_words_id)
+
+            repeat_words = list(EnglishWords.objects.filter(id__in=word_ids).values())
+            return JsonResponse({"repeat_words": repeat_words})
+        # POST request is used for getting data from js file
+        elif request.method == "POST":
+            data = json.loads(request.POST.get("main"))
+            repeat_word = RepeatWord.objects.filter(user=request.user, english_words = data["word_id"])
+            # if user repeated word 6 times, mark it as "fully learned" and remove it from RepeatWord
+            if repeat_word[0].times_repeated == 6:
+                UserWordSelection.objects.filter(user=request.user, english_words = data["word_id"]).update(status="learned")
+                repeat_word.delete()
+            # increment times_repeated field and update timer
+            else:
+                repeat_word.update(times_repeated=F("times_repeated") + 1, date=timezone.now())
+            return JsonResponse({"status": "success"})
+        else:
+            return JsonResponse({"status": "invalid request"}, status=400)
+    else:
+        # if request is not AJAX, render the page
+        return render(request, "flashcards/repeat.html")
